@@ -585,6 +585,10 @@ func (a *tailscaleSTSReconciler) reconcileSTS(ctx context.Context, logger *zap.S
 			Name:  "TS_EXPERIMENTAL_VERSIONED_CONFIG_DIR",
 			Value: "/etc/tsconfig",
 		},
+		corev1.EnvVar{
+			Name:  "TS_EXTRA_ARGS",
+			Value: "--login-server=" + a.tsnetServer.ControlURL,
+		},
 	)
 	if sts.ForwardClusterTrafficViaL7IngressProxy {
 		container.Env = append(container.Env, corev1.EnvVar{
