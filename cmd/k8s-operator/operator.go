@@ -145,7 +145,7 @@ func initTSNet(zlog *zap.SugaredLogger) (*tsnet.Server, tsClient) {
 	if clientIDPath == "" || clientSecretPath == "" {
 		startlog.Fatalf("CLIENT_ID_FILE and CLIENT_SECRET_FILE must be set")
 	}
-	tsc, err := newTSClient(context.Background(), clientIDPath, clientSecretPath)
+	tsc, err := newTSClient(context.Background(), tsBaseURL+"/api/v2/oauth/token", clientIDPath, clientSecretPath)
 	if err != nil {
 		startlog.Fatalf("error creating Tailscale client: %v", err)
 	}

@@ -22,7 +22,7 @@ const (
 	defaultBaseURL = "https://api.tailscale.com"
 )
 
-func newTSClient(ctx context.Context, clientIDPath, clientSecretPath string) (tsClient, error) {
+func newTSClient(ctx context.Context, tokenURL, clientIDPath, clientSecretPath string) (tsClient, error) {
 	clientID, err := os.ReadFile(clientIDPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading client ID %q: %w", clientIDPath, err)
@@ -34,7 +34,7 @@ func newTSClient(ctx context.Context, clientIDPath, clientSecretPath string) (ts
 	credentials := clientcredentials.Config{
 		ClientID:     string(clientID),
 		ClientSecret: string(clientSecret),
-		TokenURL:     "https://login.tailscale.com/api/v2/oauth/token",
+		TokenURL:     tokenURL,
 	}
 	c := tailscale.NewClient(defaultTailnet, nil)
 	c.UserAgent = "tailscale-k8s-operator"
