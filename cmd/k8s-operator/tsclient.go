@@ -22,24 +22,31 @@ const (
 	defaultBaseURL = "https://api.tailscale.com"
 )
 
-func newTSClient(ctx context.Context, tokenURL, clientIDPath, clientSecretPath string) (tsClient, error) {
-	clientID, err := os.ReadFile(clientIDPath)
-	if err != nil {
-		return nil, fmt.Errorf("error reading client ID %q: %w", clientIDPath, err)
+func newTSClient(ctx context.Context, tokenURL, clientIDPath, clientSecretPath string) (client tsClient, err error) {
+	switch backend := defaultEnv("OPERATOR_BACKEND", "tailscale"); backend {
+	case "tailscale":
+		clientID, err := os.ReadFile(clientIDPath)
+		if err != nil {
+			return nil, fmt.Errorf("error reading client ID %q: %w", clientIDPath, err)
+		}
+		clientSecret, err := os.ReadFile(clientSecretPath)
+		if err != nil {
+			return nil, fmt.Errorf("reading client secret %q: %w", clientSecretPath, err)
+		}
+		credentials := clientcredentials.Config{
+			ClientID:     string(clientID),
+			ClientSecret: string(clientSecret),
+			TokenURL:     tokenURL,
+		}
+		c := tailscale.NewClient(defaultTailnet, nil)
+		c.UserAgent = "tailscale-k8s-operator"
+		c.HTTPClient = credentials.Client(ctx)
+		client = c
+	default:
+		return nil, fmt.Errorf("unsupported backend: %s", backend)
 	}
-	clientSecret, err := os.ReadFile(clientSecretPath)
-	if err != nil {
-		return nil, fmt.Errorf("reading client secret %q: %w", clientSecretPath, err)
-	}
-	credentials := clientcredentials.Config{
-		ClientID:     string(clientID),
-		ClientSecret: string(clientSecret),
-		TokenURL:     tokenURL,
-	}
-	c := tailscale.NewClient(defaultTailnet, nil)
-	c.UserAgent = "tailscale-k8s-operator"
-	c.HTTPClient = credentials.Client(ctx)
-	return c, nil
+
+	return client, nil
 }
 
 type tsClient interface {
