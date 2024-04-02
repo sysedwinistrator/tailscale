@@ -165,6 +165,7 @@ type tailscaleSTSReconciler struct {
 	proxyImage             string
 	proxyPriorityClassName string
 	tsFirewallMode         string
+	controlURL             string
 }
 
 func (sts tailscaleSTSReconciler) validate() error {
@@ -587,7 +588,7 @@ func (a *tailscaleSTSReconciler) reconcileSTS(ctx context.Context, logger *zap.S
 		},
 		corev1.EnvVar{
 			Name:  "TS_EXTRA_ARGS",
-			Value: "--login-server=" + a.tsnetServer.ControlURL,
+			Value: "--login-server=" + a.controlURL,
 		},
 	)
 	if sts.ForwardClusterTrafficViaL7IngressProxy {

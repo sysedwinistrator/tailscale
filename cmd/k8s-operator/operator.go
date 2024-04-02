@@ -290,6 +290,7 @@ func runReconcilers(opts reconcilerOpts) {
 		proxyImage:             opts.proxyImage,
 		proxyPriorityClassName: opts.proxyPriorityClassName,
 		tsFirewallMode:         opts.proxyFirewallMode,
+		controlURL:             opts.tsServer.ControlURL,
 	}
 	err = builder.
 		ControllerManagedBy(mgr).
