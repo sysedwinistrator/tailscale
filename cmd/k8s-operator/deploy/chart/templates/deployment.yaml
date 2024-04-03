@@ -70,10 +70,23 @@ spec:
                   fieldPath: metadata.namespace
             - name: TAILSCALE_BASE_URL
               value: {{ .Values.operatorConfig.tailscaleBaseURL }}
+            - name: OPERATOR_BACKEND
+              value: {{ .Values.operatorConfig.backend }}
             - name: CLIENT_ID_FILE
               value: /oauth/client_id
             - name: CLIENT_SECRET_FILE
               value: /oauth/client_secret
+            {{- if eq .Values.operatorConfig.backend "headscale" }}
+            - name: HEADSCALE_ADDRESS
+              value: {{ .Values.operatorConfig.headscale.grpc_address }}
+            - name: HEADSCALE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.operatorConfig.headscale.apikey_secret }}
+                  key: apikey
+            - name: HEADSCALE_USER
+              value: {{ .Values.operatorConfig.headscale.user }}
+            {{- end }}
             {{- $proxyTag := printf ":%s" ( .Values.proxyConfig.image.tag | default .Chart.AppVersion )}}
             - name: PROXY_IMAGE
               value: {{ coalesce .Values.proxyConfig.image.repo .Values.proxyConfig.image.repository }}{{- if .Values.proxyConfig.image.digest -}}{{ printf "@%s" .Values.proxyConfig.image.digest}}{{- else -}}{{ printf "%s" $proxyTag }}{{- end }}
