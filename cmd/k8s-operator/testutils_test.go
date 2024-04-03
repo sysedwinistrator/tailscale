@@ -493,11 +493,13 @@ func expectedSecret(t *testing.T, cl client.Client, opts configOpts) *corev1.Sec
 		}
 		mak.Set(&s.StringData, "serve-config", string(serveConfigBs))
 	}
+	serverURL := ""
 	conf := &ipn.ConfigVAlpha{
 		Version:             "alpha0",
 		AcceptDNS:           "false",
 		Hostname:            &opts.hostname,
 		Locked:              "false",
+		ServerURL:           &serverURL,
 		AuthKey:             ptr.To("secret-authkey"),
 		AcceptRoutes:        "false",
 		AppConnector:        &ipn.AppConnectorPrefs{Advertise: false},

@@ -382,7 +382,7 @@ func (a *tailscaleSTSReconciler) createOrGetSecret(ctx context.Context, logger *
 			return "", "", nil, err
 		}
 	}
-	configs, err := tailscaledConfig(stsC, authKey, orig)
+	configs, err := a.tailscaledConfig(stsC, authKey, orig)
 	if err != nil {
 		return "", "", nil, fmt.Errorf("error creating tailscaled config: %w", err)
 	}
@@ -585,10 +585,6 @@ func (a *tailscaleSTSReconciler) reconcileSTS(ctx context.Context, logger *zap.S
 			// New style is in the form of cap-<capability-version>.hujson.
 			Name:  "TS_EXPERIMENTAL_VERSIONED_CONFIG_DIR",
 			Value: "/etc/tsconfig",
-		},
-		corev1.EnvVar{
-			Name:  "TS_EXTRA_ARGS",
-			Value: "--login-server=" + a.controlURL,
 		},
 	)
 	if sts.ForwardClusterTrafficViaL7IngressProxy {
@@ -944,13 +940,14 @@ func readAuthKey(secret *corev1.Secret, key string) (*string, error) {
 // tailscaledConfig takes a proxy config, a newly generated auth key if generated and a Secret with the previous proxy
 // state and auth key and returns tailscaled config files for currently supported proxy versions and a hash of that
 // configuration.
-func tailscaledConfig(stsC *tailscaleSTSConfig, newAuthkey string, oldSecret *corev1.Secret) (tailscaledConfigs, error) {
+func (a *tailscaleSTSReconciler) tailscaledConfig(stsC *tailscaleSTSConfig, newAuthkey string, oldSecret *corev1.Secret) (tailscaledConfigs, error) {
 	conf := &ipn.ConfigVAlpha{
 		Version:             "alpha0",
 		AcceptDNS:           "false",
 		AcceptRoutes:        "false", // AcceptRoutes defaults to true
 		Locked:              "false",
 		Hostname:            &stsC.Hostname,
+		ServerURL:           &a.controlURL,
 		NoStatefulFiltering: "true", // Explicitly enforce default value, see #14216
 		AppConnector:        &ipn.AppConnectorPrefs{Advertise: false},
 	}
