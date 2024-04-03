@@ -141,6 +141,8 @@ func initTSNet(zlog *zap.SugaredLogger) (*tsnet.Server, tsClient) {
 		operatorTags     = defaultEnv("OPERATOR_INITIAL_TAGS", "tag:k8s-operator")
 		tsBaseURL        = defaultEnv("TAILSCALE_BASE_URL", "https://controlplane.tailscale.com")
 	)
+	// TODO: should this be passed to other functions,
+	// or should they call zlog.Named themselves?
 	startlog := zlog.Named("startup")
 	if clientIDPath == "" || clientSecretPath == "" {
 		startlog.Fatalf("CLIENT_ID_FILE and CLIENT_SECRET_FILE must be set")
@@ -176,6 +178,7 @@ func initTSNet(zlog *zap.SugaredLogger) (*tsnet.Server, tsClient) {
 		startlog.Fatalf("getting local client: %v", err)
 	}
 
+	// TODO: create this earlier and pass to previous functions?
 	ctx := context.Background()
 	loginDone := false
 	machineAuthShown := false

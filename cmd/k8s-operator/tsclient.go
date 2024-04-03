@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"golang.org/x/oauth2/clientcredentials"
+	"tailscale.com/cmd/k8s-operator/headscale"
 	"tailscale.com/internal/client/tailscale"
 	"tailscale.com/tailcfg"
 )
@@ -42,6 +43,8 @@ func newTSClient(ctx context.Context, tokenURL, clientIDPath, clientSecretPath s
 		c.UserAgent = "tailscale-k8s-operator"
 		c.HTTPClient = credentials.Client(ctx)
 		client = c
+	case "headscale":
+		client = headscale.NewHeadscaleClientWrapper(context.Background(), zlog)
 	default:
 		return nil, fmt.Errorf("unsupported backend: %s", backend)
 	}
