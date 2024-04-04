@@ -24,6 +24,8 @@ const (
 	defaultBaseURL = "https://api.tailscale.com"
 )
 
+// newTSClient initializes the Tailscale API client. It uses the CLIENT_ID_FILE
+// and CLIENT_SECRET_FILE environment variables to authenticate with Tailscale
 func newTSClient(ctx context.Context, zlog *zap.SugaredLogger, tokenURL, clientIDPath, clientSecretPath string) (client tsClient, err error) {
 	switch backend := defaultEnv("OPERATOR_BACKEND", "tailscale"); backend {
 	case "tailscale":

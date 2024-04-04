@@ -129,9 +129,8 @@ func main() {
 	runReconcilers(rOpts)
 }
 
-// initTSNet initializes the tsnet.Server and logs in to Tailscale. It uses the
-// CLIENT_ID_FILE and CLIENT_SECRET_FILE environment variables to authenticate
-// with Tailscale.
+// initTSNet initializes the tsnet.Server and logs in to Tailscale or
+// Headscale, depending on the OPERATOR_BACKEND environment variable.
 func initTSNet(zlog *zap.SugaredLogger) (*tsnet.Server, tsClient) {
 	var (
 		ctx              = context.Background()
