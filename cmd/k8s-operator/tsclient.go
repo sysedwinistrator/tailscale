@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 
+	"go.uber.org/zap"
 	"golang.org/x/oauth2/clientcredentials"
 	"tailscale.com/cmd/k8s-operator/headscale"
 	"tailscale.com/internal/client/tailscale"
@@ -23,7 +24,7 @@ const (
 	defaultBaseURL = "https://api.tailscale.com"
 )
 
-func newTSClient(ctx context.Context, tokenURL, clientIDPath, clientSecretPath string) (client tsClient, err error) {
+func newTSClient(ctx context.Context, zlog *zap.SugaredLogger, tokenURL, clientIDPath, clientSecretPath string) (client tsClient, err error) {
 	switch backend := defaultEnv("OPERATOR_BACKEND", "tailscale"); backend {
 	case "tailscale":
 		clientID, err := os.ReadFile(clientIDPath)
