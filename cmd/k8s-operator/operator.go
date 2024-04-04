@@ -134,6 +134,7 @@ func main() {
 // with Tailscale.
 func initTSNet(zlog *zap.SugaredLogger) (*tsnet.Server, tsClient) {
 	var (
+		ctx              = context.Background()
 		startlog         = zlog.Named("startup")
 		clientIDPath     = defaultEnv("CLIENT_ID_FILE", "")
 		clientSecretPath = defaultEnv("CLIENT_SECRET_FILE", "")
@@ -145,7 +146,7 @@ func initTSNet(zlog *zap.SugaredLogger) (*tsnet.Server, tsClient) {
 	if clientIDPath == "" || clientSecretPath == "" {
 		startlog.Fatalf("CLIENT_ID_FILE and CLIENT_SECRET_FILE must be set")
 	}
-	tsc, err := newTSClient(context.Background(), zlog, tsBaseURL+"/api/v2/oauth/token", clientIDPath, clientSecretPath)
+	tsc, err := newTSClient(ctx, zlog, tsBaseURL+"/api/v2/oauth/token", clientIDPath, clientSecretPath)
 	if err != nil {
 		startlog.Fatalf("error creating Tailscale client: %v", err)
 	}
@@ -176,8 +177,6 @@ func initTSNet(zlog *zap.SugaredLogger) (*tsnet.Server, tsClient) {
 		startlog.Fatalf("getting local client: %v", err)
 	}
 
-	// TODO: create this earlier and pass to previous functions?
-	ctx := context.Background()
 	loginDone := false
 	machineAuthShown := false
 waitOnline:
