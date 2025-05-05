@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"tailscale.com/client/tailscale"
+	_tailscale "tailscale.com/internal/client/tailscale"
+	"tailscale.com/tailcfg"
 )
 
 // HeadscaleClientWrapper implements the tsClient interface for Headscale.
@@ -100,6 +102,18 @@ func (c *HeadscaleClientWrapper) DeleteDevice(ctx context.Context, nodeStableID 
 	}
 
 	return nil
+}
+
+func (c *HeadscaleClientWrapper) GetVIPService(ctx context.Context, name tailcfg.ServiceName) (*_tailscale.VIPService, error) {
+	return nil, fmt.Errorf("VIPService not supported for Headscale")
+}
+
+func (c *HeadscaleClientWrapper) CreateOrUpdateVIPService(ctx context.Context, svc *_tailscale.VIPService) error {
+	return fmt.Errorf("VIPService not supported for Headscale")
+}
+
+func (c *HeadscaleClientWrapper) DeleteVIPService(ctx context.Context, name tailcfg.ServiceName) error {
+	return fmt.Errorf("VIPService not supported for Headscale")
 }
 
 // tokenAuth is a helper type that implements the PerRPCCredentials interface.
