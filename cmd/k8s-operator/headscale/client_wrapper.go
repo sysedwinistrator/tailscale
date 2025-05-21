@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	headscale "github.com/juanfont/headscale/gen/go/headscale/v1"
@@ -78,6 +79,44 @@ func (c *HeadscaleClientWrapper) CreateKey(ctx context.Context, caps tailscale.K
 	}
 
 	return keySecret, keyMeta, nil
+}
+
+func (c *HeadscaleClientWrapper) Device(ctx context.Context, deviceID string, fields *tailscale.DeviceFieldsOpts) (*tailscale.Device, error) {
+	deviceIDInt, err := strconv.Atoi(deviceID)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.GetNode(ctx, &headscale.GetNodeRequest{
+		NodeId: uint64(deviceIDInt),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var node = resp.Node
+
+	return &tailscale.Device{
+		Addresses: node.IpAddresses,
+		DeviceID:  fmt.Sprint(node.Id),
+		NodeID:    fmt.Sprint(node.Id),
+		User:      node.User.Name,
+		Name:      node.Name,
+		Hostname:  node.GivenName,
+
+		ClientVersion:   "",      // Mock
+		UpdateAvailable: false,   // Mock
+		OS:              "Linux", // Mock, most likely OS for Kubernetes
+
+		Tags:              node.ValidTags,
+		Created:           node.CreatedAt.String(),
+		LastSeen:          node.LastSeen.String(),
+		KeyExpiryDisabled: false, // Mock, keys are created with 90d expiry, see CreateKey()
+		Expires:           node.Expiry.String(),
+		Authorized:        true,  // Mock, should be true (?)
+		IsExternal:        false, // Mock, Headscale doesn't have external devices
+		MachineKey:        node.MachineKey,
+		NodeKey:           node.NodeKey,
+	}, nil
 }
 
 func (c *HeadscaleClientWrapper) DeleteDevice(ctx context.Context, nodeStableID string) error {
